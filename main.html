@@ -1,0 +1,548 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>منشئ الاختبارات المبسط</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;500;600;700&display=swap');
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Cairo', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #f8f9fa;
+            min-height: 100vh;
+            padding: 20px;
+            direction: rtl;
+            text-align: right;
+        }
+
+        .container {
+            max-width: 700px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 8px;
+            padding: 32px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 32px;
+        }
+
+        .header h1 {
+            color: #1a1a1a;
+            font-size: 24px;
+            font-weight: 600;
+            margin-bottom: 4px;
+        }
+
+        .header p {
+            color: #666;
+            font-size: 14px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 6px;
+            font-weight: 500;
+            color: #1a1a1a;
+            font-size: 14px;
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #e1e5e9;
+            border-radius: 6px;
+            font-size: 14px;
+            transition: border-color 0.2s;
+            background: white;
+            direction: rtl;
+            text-align: right;
+            font-family: 'Cairo', sans-serif;
+        }
+
+        .form-control:focus {
+            outline: none;
+            border-color: #0066cc;
+            box-shadow: 0 0 0 3px rgba(0, 102, 204, 0.1);
+        }
+
+        select.form-control {
+            appearance: none;
+            background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='m6 8 4 4 4-4'/%3e%3c/svg%3e");
+            background-position: left 8px center;
+            background-repeat: no-repeat;
+            background-size: 16px;
+            padding-left: 32px;
+            cursor: pointer;
+        }
+
+        .json-input {
+            min-height: 200px;
+            font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
+            font-size: 13px;
+            line-height: 1.5;
+            background: #f8f9fa;
+            border: 2px dashed #e1e5e9;
+            direction: ltr;
+            text-align: left;
+        }
+
+        .json-input:focus {
+            border-color: #0066cc;
+            background: white;
+        }
+
+        .json-example {
+            background: #f8f9fa;
+            border: 1px solid #e1e5e9;
+            border-radius: 6px;
+            padding: 12px;
+            font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
+            font-size: 12px;
+            direction: ltr;
+            text-align: left;
+            margin-top: 8px;
+            color: #666;
+        }
+
+        .image-upload {
+            border: 2px dashed #e1e5e9;
+            border-radius: 6px;
+            padding: 24px;
+            text-align: center;
+            cursor: pointer;
+            transition: border-color 0.2s;
+            background: #fafbfc;
+        }
+
+        .image-upload:hover {
+            border-color: #0066cc;
+        }
+
+        .image-upload.dragover {
+            border-color: #0066cc;
+            background: #f0f8ff;
+        }
+
+        .upload-text {
+            color: #666;
+            font-size: 14px;
+        }
+
+        .image-preview {
+            max-width: 150px;
+            max-height: 150px;
+            border-radius: 4px;
+            margin: 12px auto;
+            display: block;
+        }
+
+        .remove-image {
+            background: #dc3545;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            padding: 4px 8px;
+            font-size: 12px;
+            cursor: pointer;
+            margin-top: 8px;
+        }
+
+
+
+        .btn {
+            width: 100%;
+            background: #0066cc;
+            color: white;
+            border: none;
+            padding: 12px;
+            border-radius: 6px;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: background-color 0.2s;
+            margin-top: 8px;
+            font-family: 'Cairo', sans-serif;
+        }
+
+        .btn:hover:not(:disabled) {
+            background: #0052a3;
+        }
+
+        .btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+        .btn-secondary {
+            background: #6c757d;
+        }
+
+        .btn-secondary:hover:not(:disabled) {
+            background: #5a6268;
+        }
+
+        .btn-small {
+            width: auto;
+            padding: 8px 16px;
+            font-size: 13px;
+            margin-top: 0;
+            margin-left: 8px;
+        }
+
+        .message {
+            padding: 12px;
+            border-radius: 6px;
+            margin: 16px 0;
+            font-size: 14px;
+            text-align: right;
+        }
+
+        .message.success {
+            background: #d4edda;
+            border: 1px solid #c3e6cb;
+            color: #155724;
+        }
+
+        .message.error {
+            background: #f8d7da;
+            border: 1px solid #f5c6cb;
+            color: #721c24;
+        }
+
+        .required {
+            color: #dc3545;
+        }
+
+        .loading {
+            display: inline-block;
+            width: 14px;
+            height: 14px;
+            border: 2px solid #ffffff;
+            border-radius: 50%;
+            border-top-color: transparent;
+            animation: spin 1s ease-in-out infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        @media (max-width: 600px) {
+            .container {
+                padding: 20px;
+                margin: 10px;
+            }
+            
+            .header h1 {
+                font-size: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>منشئ الاختبارات المبسط</h1>
+            <p>إنشاء سؤال اختبار جديد بسهولة</p>
+        </div>
+
+        <form id="quizForm">
+            <div class="form-group">
+                <label for="categorySelect">الفئة <span class="required">*</span></label>
+                <select class="form-control" id="categorySelect" required>
+                    <option value="">اختر الفئة</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label>الصورة (اختياري)</label>
+                <div class="image-upload" id="imageUpload">
+                    <div class="upload-text">انقر لاختيار صورة</div>
+                    <input type="file" id="imageFile" accept="image/*" style="display: none;">
+                </div>
+                <div id="imagePreview"></div>
+            </div>
+
+            <div class="form-group">
+                <label for="jsonInput">
+                    بيانات السؤال (JSON) <span class="required">*</span>
+                    <button type="button" class="btn btn-secondary btn-small" onclick="parseJson()">تحليل البيانات</button>
+                </label>
+                <textarea class="form-control json-input" id="jsonInput" placeholder="الصق بيانات JSON هنا..." required></textarea>
+                <div class="json-example">
+مثال:
+{
+  "question": "ما هي عاصمة مصر؟",
+  "info": "معلومة إضافية اختيارية",
+  "answers": [
+    {"answer": "القاهرة", "isTrue": true},
+    {"answer": "الإسكندرية", "isTrue": false},
+    {"answer": "الجيزة", "isTrue": false},
+    {"answer": "أسوان", "isTrue": false}
+  ]
+}
+                </div>
+            </div>
+
+
+
+            <button type="submit" class="btn" id="submitBtn">إنشاء السؤال</button>
+            <button type="button" class="btn btn-secondary" onclick="resetForm()">إعادة تعيين</button>
+        </form>
+
+        <div id="messages"></div>
+    </div>
+
+    <script>
+        const BASE_URL = 'https://quizzapi.aminmusa.dev';
+        let selectedFile = null;
+        let parsedData = null;
+
+        document.addEventListener('DOMContentLoaded', function() {
+            loadCategories();
+            setupEventListeners();
+        });
+
+        function setupEventListeners() {
+            document.getElementById('quizForm').addEventListener('submit', handleSubmit);
+
+            const imageUpload = document.getElementById('imageUpload');
+            const imageFile = document.getElementById('imageFile');
+
+            imageUpload.addEventListener('click', () => {
+                if (!selectedFile) imageFile.click();
+            });
+            
+            imageFile.addEventListener('change', handleFileSelect);
+
+            imageUpload.addEventListener('dragover', (e) => {
+                e.preventDefault();
+                imageUpload.classList.add('dragover');
+            });
+
+            imageUpload.addEventListener('dragleave', () => {
+                imageUpload.classList.remove('dragover');
+            });
+
+            imageUpload.addEventListener('drop', (e) => {
+                e.preventDefault();
+                imageUpload.classList.remove('dragover');
+                const files = e.dataTransfer.files;
+                if (files.length > 0) {
+                    handleFileSelect({ target: { files } });
+                }
+            });
+
+            // Auto-parse JSON on input change
+            document.getElementById('jsonInput').addEventListener('input', function() {
+                if (this.value.trim()) {
+                    setTimeout(parseJson, 500); // Debounce
+                }
+            });
+        }
+
+        async function loadCategories() {
+            try {
+                const response = await fetch(`${BASE_URL}/questions/categories`, {
+                    method: 'GET',
+                    headers: {
+                        'Accept': 'application/json',
+                        'Content-Type': 'application/json'
+                    }
+                });
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                
+                const categories = await response.json();
+                
+                const select = document.getElementById('categorySelect');
+                select.innerHTML = '<option value="">اختر الفئة</option>' + 
+                    categories.map(category => `
+                        <option value="${category.id}">${category.name}</option>
+                    `).join('');
+                    
+            } catch (error) {
+                if (error.name === 'TypeError' && error.message.includes('fetch')) {
+                    showMessage('لا يمكن الاتصال بـ API. يرجى التحقق من إعدادات CORS أو استخدام إضافة CORS.', 'error');
+                } else {
+                    showMessage('فشل في تحميل الفئات', 'error');
+                }
+            }
+        }
+
+        function parseJson() {
+            const jsonInput = document.getElementById('jsonInput').value.trim();
+            
+            if (!jsonInput) {
+                hidePreview();
+                return;
+            }
+
+            try {
+                parsedData = JSON.parse(jsonInput);
+                
+                // Validate structure
+                if (!parsedData.question || !parsedData.answers || !Array.isArray(parsedData.answers)) {
+                    throw new Error('Invalid structure');
+                }
+
+                if (parsedData.answers.length !== 4) {
+                    throw new Error('Must have exactly 4 answers');
+                }
+
+                const correctAnswers = parsedData.answers.filter(a => a.isTrue);
+                if (correctAnswers.length !== 1) {
+                    throw new Error('Must have exactly one correct answer');
+                }
+
+                showMessage('تم تحليل البيانات بنجاح!', 'success');
+                
+            } catch (error) {
+                parsedData = null;
+                showMessage('خطأ في تنسيق JSON: ' + error.message, 'error');
+            }
+        }
+
+
+
+        function handleFileSelect(event) {
+            const file = event.target.files[0];
+            if (file) {
+                if (file.size > 10 * 1024 * 1024) {
+                    showMessage('يجب أن يكون حجم الملف أقل من 10 ميجابايت', 'error');
+                    return;
+                }
+
+                selectedFile = file;
+                
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    document.getElementById('imageUpload').innerHTML = `
+                        <img src="${e.target.result}" alt="معاينة" class="image-preview">
+                        <button type="button" class="remove-image" onclick="removeImage()">إزالة</button>
+                    `;
+                };
+                reader.readAsDataURL(file);
+            }
+        }
+
+        function removeImage() {
+            selectedFile = null;
+            document.getElementById('imageFile').value = '';
+            document.getElementById('imageUpload').innerHTML = '<div class="upload-text">انقر لاختيار صورة</div>';
+        }
+
+        async function handleSubmit(event) {
+            event.preventDefault();
+            
+            const categoryId = document.getElementById('categorySelect').value;
+
+            if (!categoryId) {
+                showMessage('يرجى اختيار فئة', 'error');
+                return;
+            }
+
+            if (!parsedData) {
+                showMessage('يرجى إدخال بيانات JSON صالحة', 'error');
+                return;
+            }
+
+            const submitBtn = document.getElementById('submitBtn');
+            submitBtn.innerHTML = '<span class="loading"></span> جاري الإنشاء...';
+            submitBtn.disabled = true;
+
+            try {
+                const payload = {
+                    question: parsedData.question,
+                    info: parsedData.info || '',
+                    categoryId,
+                    answers: parsedData.answers
+                };
+
+                const response = await fetch(`${BASE_URL}/questions/question`, {
+                    method: 'POST',
+                    headers: {
+                        'Accept': 'application/json',
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(payload)
+                });
+
+                if (!response.ok) {
+                    const errorText = await response.text();
+                    throw new Error(`Failed to create question: ${response.status}`);
+                }
+
+                const result = await response.json();
+                const questionId = result.id;
+
+                if (selectedFile) {
+                    submitBtn.innerHTML = '<span class="loading"></span> جاري رفع الصورة...';
+                    
+                    const formData = new FormData();
+                    formData.append('file', selectedFile);
+
+                    const imageResponse = await fetch(`${BASE_URL}/questions/question/image/${questionId}`, {
+                        method: 'PATCH',
+                        body: formData
+                    });
+
+                    if (!imageResponse.ok) {
+                        showMessage('تم إنشاء السؤال، لكن فشل رفع الصورة', 'success');
+                    } else {
+                        showMessage('تم إنشاء السؤال بنجاح!', 'success');
+                    }
+                } else {
+                    showMessage('تم إنشاء السؤال بنجاح!', 'success');
+                }
+
+                setTimeout(resetForm, 2000);
+                
+            } catch (error) {
+                if (error.name === 'TypeError' && error.message.includes('fetch')) {
+                    showMessage('لا يمكن الاتصال بخادم API', 'error');
+                } else {
+                    showMessage('فشل في إنشاء السؤال', 'error');
+                }
+            } finally {
+                submitBtn.innerHTML = 'إنشاء السؤال';
+                submitBtn.disabled = false;
+            }
+        }
+
+        function resetForm() {
+            document.getElementById('quizForm').reset();
+            removeImage();
+            parsedData = null;
+            clearMessages();
+        }
+
+        function showMessage(message, type) {
+            document.getElementById('messages').innerHTML = `<div class="message ${type}">${message}</div>`;
+            if (type === 'success') {
+                setTimeout(clearMessages, 5000);
+            }
+        }
+
+        function clearMessages() {
+            document.getElementById('messages').innerHTML = '';
+        }
+    </script>
+</body>
+</html>
