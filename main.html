@@ -161,8 +161,6 @@
             margin-top: 8px;
         }
 
-
-
         .btn {
             width: 100%;
             background: #0066cc;
@@ -241,6 +239,63 @@
             to { transform: rotate(360deg); }
         }
 
+        /* Password Protection Styles */
+        .password-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+
+        .password-form {
+            background: white;
+            padding: 32px;
+            border-radius: 12px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            text-align: center;
+            max-width: 400px;
+            width: 90%;
+        }
+
+        .password-form h2 {
+            margin-bottom: 16px;
+            color: #1a1a1a;
+            font-size: 20px;
+        }
+
+        .password-form p {
+            margin-bottom: 24px;
+            color: #666;
+            font-size: 14px;
+        }
+
+        .password-input {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #e1e5e9;
+            border-radius: 6px;
+            font-size: 16px;
+            text-align: center;
+            margin-bottom: 16px;
+            font-family: 'Cairo', sans-serif;
+        }
+
+        .password-input:focus {
+            outline: none;
+            border-color: #0066cc;
+            box-shadow: 0 0 0 3px rgba(0, 102, 204, 0.1);
+        }
+
+        .hidden {
+            display: none !important;
+        }
+
         @media (max-width: 600px) {
             .container {
                 padding: 20px;
@@ -250,40 +305,67 @@
             .header h1 {
                 font-size: 20px;
             }
+
+            .password-form {
+                padding: 24px;
+                margin: 20px;
+            }
         }
     </style>
 </head>
 <body>
-    <div class="container">
-        <div class="header">
-            <h1>منشئ الاختبارات المبسط</h1>
-            <p>إنشاء سؤال اختبار جديد بسهولة</p>
+    <!-- Password Protection Overlay -->
+    <div id="passwordOverlay" class="password-overlay">
+        <div class="password-form">
+            <h2>🔒 منطقة محمية</h2>
+            <p>يرجى إدخال كلمة المرور للوصول إلى منشئ الاختبارات</p>
+            <form id="passwordForm">
+                <input 
+                    type="password" 
+                    id="passwordInput" 
+                    class="password-input" 
+                    placeholder="كلمة المرور" 
+                    autocomplete="current-password"
+                    required
+                >
+                <button type="submit" class="btn">دخول</button>
+            </form>
+            <div id="passwordError"></div>
         </div>
+    </div>
 
-        <form id="quizForm">
-            <div class="form-group">
-                <label for="categorySelect">الفئة <span class="required">*</span></label>
-                <select class="form-control" id="categorySelect" required>
-                    <option value="">اختر الفئة</option>
-                </select>
+    <!-- Main Application -->
+    <div id="mainApp" class="hidden">
+        <div class="container">
+            <div class="header">
+                <h1>منشئ الاختبارات المبسط</h1>
+                <p>إنشاء سؤال اختبار جديد بسهولة</p>
             </div>
 
-            <div class="form-group">
-                <label>الصورة (اختياري)</label>
-                <div class="image-upload" id="imageUpload">
-                    <div class="upload-text">انقر لاختيار صورة</div>
-                    <input type="file" id="imageFile" accept="image/*" style="display: none;">
+            <form id="quizForm">
+                <div class="form-group">
+                    <label for="categorySelect">الفئة <span class="required">*</span></label>
+                    <select class="form-control" id="categorySelect" required>
+                        <option value="">اختر الفئة</option>
+                    </select>
                 </div>
-                <div id="imagePreview"></div>
-            </div>
 
-            <div class="form-group">
-                <label for="jsonInput">
-                    بيانات السؤال (JSON) <span class="required">*</span>
-                    <button type="button" class="btn btn-secondary btn-small" onclick="parseJson()">تحليل البيانات</button>
-                </label>
-                <textarea class="form-control json-input" id="jsonInput" placeholder="الصق بيانات JSON هنا..." required></textarea>
-                <div class="json-example">
+                <div class="form-group">
+                    <label>الصورة (اختياري)</label>
+                    <div class="image-upload" id="imageUpload">
+                        <div class="upload-text">انقر لاختيار صورة</div>
+                        <input type="file" id="imageFile" accept="image/*" style="display: none;">
+                    </div>
+                    <div id="imagePreview"></div>
+                </div>
+
+                <div class="form-group">
+                    <label for="jsonInput">
+                        بيانات السؤال (JSON) <span class="required">*</span>
+                        <button type="button" class="btn btn-secondary btn-small" onclick="parseJson()">تحليل البيانات</button>
+                    </label>
+                    <textarea class="form-control json-input" id="jsonInput" placeholder="الصق بيانات JSON هنا..." required></textarea>
+                    <div class="json-example">
 مثال:
 {
   "question": "ما هي عاصمة مصر؟",
@@ -295,27 +377,73 @@
     {"answer": "أسوان", "isTrue": false}
   ]
 }
+                    </div>
                 </div>
-            </div>
 
+                <button type="submit" class="btn" id="submitBtn">إنشاء السؤال</button>
+                <button type="button" class="btn btn-secondary" onclick="resetForm()">إعادة تعيين</button>
+            </form>
 
-
-            <button type="submit" class="btn" id="submitBtn">إنشاء السؤال</button>
-            <button type="button" class="btn btn-secondary" onclick="resetForm()">إعادة تعيين</button>
-        </form>
-
-        <div id="messages"></div>
+            <div id="messages"></div>
+        </div>
     </div>
 
     <script>
         const BASE_URL = 'https://quizzapi.aminmusa.dev';
+        const CORRECT_PASSWORD = '0905';
         let selectedFile = null;
         let parsedData = null;
 
         document.addEventListener('DOMContentLoaded', function() {
+            setupPasswordProtection();
+        });
+
+        function setupPasswordProtection() {
+            const passwordForm = document.getElementById('passwordForm');
+            const passwordInput = document.getElementById('passwordInput');
+            
+            // Check if user was previously authenticated (session-based)
+            if (sessionStorage.getItem('quiz_authenticated') === 'true') {
+                unlockApplication();
+                return;
+            }
+
+            passwordForm.addEventListener('submit', function(e) {
+                e.preventDefault();
+                const enteredPassword = passwordInput.value;
+                
+                if (enteredPassword === CORRECT_PASSWORD) {
+                    sessionStorage.setItem('quiz_authenticated', 'true');
+                    unlockApplication();
+                } else {
+                    showPasswordError('كلمة المرور غير صحيحة');
+                    passwordInput.value = '';
+                    passwordInput.focus();
+                }
+            });
+
+            // Focus on password input
+            passwordInput.focus();
+        }
+
+        function unlockApplication() {
+            document.getElementById('passwordOverlay').classList.add('hidden');
+            document.getElementById('mainApp').classList.remove('hidden');
+            initializeApplication();
+        }
+
+        function showPasswordError(message) {
+            const errorDiv = document.getElementById('passwordError');
+            errorDiv.innerHTML = `<div class="message error">${message}</div>`;
+            setTimeout(() => {
+                errorDiv.innerHTML = '';
+            }, 3000);
+        }
+
+        function initializeApplication() {
             loadCategories();
             setupEventListeners();
-        });
+        }
 
         function setupEventListeners() {
             document.getElementById('quizForm').addEventListener('submit', handleSubmit);
@@ -418,8 +546,6 @@
                 showMessage('خطأ في تنسيق JSON: ' + error.message, 'error');
             }
         }
-
-
 
         function handleFileSelect(event) {
             const file = event.target.files[0];
@@ -543,6 +669,18 @@
         function clearMessages() {
             document.getElementById('messages').innerHTML = '';
         }
+
+        // Optional: Add logout functionality
+        function logout() {
+            sessionStorage.removeItem('quiz_authenticated');
+            location.reload();
+        }
+
+        // Optional: Clear authentication on browser close (not just tab)
+        window.addEventListener('beforeunload', function() {
+            // Uncomment the line below if you want to require password on every browser restart
+            // sessionStorage.removeItem('quiz_authenticated');
+        });
     </script>
 </body>
 </html>
